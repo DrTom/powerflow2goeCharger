@@ -1,0 +1,58 @@
+- name: config
+  file:
+    path: /etc/powerflow2goecharger
+    state: directory
+    mode: 0755
+
+- name: env config
+  template:
+    src: config.env
+    dest: "/etc/powerflow2goecharger/config.env"
+    owner: root
+    group: "{{ powerflow2goecharger_user }}"
+    mode: 0640
+
+- name: dot env link
+  file:
+    src: "/etc/powerflow2goecharger/config.env"
+    dest: "{{ powerflow2goecharger_working_directory }}/config.env"
+    owner: "{{ powerflow2goecharger_user }}"
+    group: "{{ powerflow2goecharger_user }}"
+    state: link
+    mode: 0640
+
+
+- name: copy python main script
+  copy:
+    src: '{{role_path}}/../../../powerflow2goecharger.py'
+    dest: "{{ powerflow2goecharger_working_directory }}/powerflow2goecharger.py"
+    owner: "{{ powerflow2goecharger_user }}"
+    group: "{{ powerflow2goecharger_user }}"
+    mode: 0644
+
+- name: copy wrapper script
+  copy:
+    src: '{{role_path}}/../../../powerflow2goecharger'
+    dest: "{{ powerflow2goecharger_working_directory }}/powerflow2goecharger"
+    owner: "{{ powerflow2goecharger_user }}"
+    group: "{{ powerflow2goecharger_user }}"
+    mode: 0755
+
+
+- name: systemd service definition
+  template:
+    src: powerflow2goecharger.service
+    dest: "/etc/systemd/system/powerflow2goecharger.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: enable and start service
+  service:
+    name: powerflow2goecharger
+    enabled: yes
+    state: restarted

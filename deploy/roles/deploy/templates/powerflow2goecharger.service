@@ -1,0 +1,24 @@
+[Unit]
+Description=Powerflow to go-eChaerger surplus charging
+After=network.target
+
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+
+[Service]
+WorkingDirectory={{powerflow2goecharger_working_directory}}
+User={{powerflow2goecharger_user}}
+Group={{powerflow2goecharger_user}}
+
+Restart=always
+RestartSec=5
+
+ExecStart={{powerflow2goecharger_working_directory}}/powerflow2goecharger
+
+
+[Install]
+WantedBy=multi-user.target
+
+
+# vi: ft=systemd

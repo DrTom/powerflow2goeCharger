@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd ../.. > /dev/null 2>&1 && pwd -P)"
+ASDF_PLUGIN=python
+ASDF_PLUGIN_URL=https://github.com/asdf-community/asdf-python.git
+
+source $PROJECT_DIR/bin/env/asdf-helper.bash
+asdf-update-plugin
+
+if [ ! -d $PROJECT_DIR/.venv ]; then
+    echo "Creating virtualenv"
+    python -m venv $PROJECT_DIR/.venv
+    source $PROJECT_DIR/.venv/bin/activate
+    pip install -r solaredge2mqtt/requirements.txt
+else
+    source $PROJECT_DIR/.venv/bin/activate
+    echo "Virtualenv already exists; use 'rm -rf $PROJECT_DIR/.venv' to recreate it"
+fi
+
+
+# vi: ft=sh

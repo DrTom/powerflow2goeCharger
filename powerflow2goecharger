@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -f ~/.asdf/asdf.sh ]; then
+    source ~/.asdf/asdf.sh
+else
+    echo "Warning: ~/.asdf/asdf.sh not found"
+fi
+
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; pwd -P)"
+cd "${PROJECT_DIR}"
+
+
+if [ -f .venv/bin/activate ]; then
+    source .venv/bin/activate
+else
+    echo "Warning: .venv/bin/activate not found; is the virtualenv set up?"
+fi
+
+if [ -e config.env ]; then
+    set -a
+    source config.env
+    set +a
+else
+    echo "Warning: config.env not found; is the environment set up?"
+fi
+
+python ./powerflow2goecharger.py "$@"
+
+# vi: ft=sh

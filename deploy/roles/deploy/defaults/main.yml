@@ -1,0 +1,8 @@
+powerflow2goecharger_charger_queues: '[]'
+powerflow2goecharger_install: true
+powerflow2goecharger_log_level: 'INFO'
+powerflow2goecharger_mqtt_host: hab
+powerflow2goecharger_mqtt_user: "powerflow2goecharger"
+powerflow2goecharger_python_version: "3.11.6"
+powerflow2goecharger_user: "powerflow2goecharger"
+powerflow2goecharger_working_directory: "/opt/powerflow2goecharger"

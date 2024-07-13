@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
+source $PROJECT_DIR/bin/env/asdf-helper.bash
+
+$PROJECT_DIR/bin/env/python-setup
+pip install -r ansible-requirements.txt
+
+
+./bin/ansible-playbook \
+  -i ${PROJECT_DIR}/../ha-inventory/hosts.yml \
+  -l hab \
+  ${PROJECT_DIR}/deploy/deploy_play.yml \
+  "$@"
+
+
+# vi: ft=sh

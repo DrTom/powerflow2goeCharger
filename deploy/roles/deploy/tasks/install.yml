@@ -1,0 +1,55 @@
+- name: make sure working dir exits
+  file:
+    path: "{{ powerflow2goecharger_working_directory }}"
+    state: directory
+    owner: "{{ powerflow2goecharger_user }}"
+    group: "{{ powerflow2goecharger_user }}"
+    mode: 0755
+
+- name: install python
+  become: yes
+  become_user: "{{ powerflow2goecharger_user }}"
+  shell: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source ~/.asdf/asdf.sh
+    asdf plugin-add python
+    asdf install python {{ powerflow2goecharger_python_version }}
+    asdf global python {{ powerflow2goecharger_python_version }}
+  args:
+    executable: /bin/bash
+    chdir: "{{ powerflow2goecharger_working_directory }}"
+
+- name: setup venv
+  become: yes
+  become_user: "{{ powerflow2goecharger_user }}"
+  shell: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source ~/.asdf/asdf.sh
+    python -m venv {{powerflow2goecharger_working_directory}}/.venv
+  args:
+    executable: /bin/bash
+    chdir: "{{ powerflow2goecharger_working_directory }}"
+
+- name: copy requirements
+  copy:
+    src: '{{role_path}}/../../../requirements.txt'
+    dest: "{{ powerflow2goecharger_working_directory }}"
+    owner: "{{ powerflow2goecharger_user }}"
+    group: "{{ powerflow2goecharger_user }}"
+    mode: 0644
+
+- name: install powerflow2goecharger
+  become: yes
+  become_user: "{{ powerflow2goecharger_user }}"
+  shell: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd {{ powerflow2goecharger_working_directory }}
+    source ~/.asdf/asdf.sh
+    source {{powerflow2goecharger_working_directory}}/.venv/bin/activate
+    pip install -r requirements.txt
+  args:
+    executable: /bin/bash
+    chdir: "{{ powerflow2goecharger_working_directory }}"

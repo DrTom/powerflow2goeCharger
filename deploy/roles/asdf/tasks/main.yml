@@ -1,0 +1,38 @@
+- name: install various build dependencies
+  apt:
+    pkg:
+      - autoconf
+      - bison
+      - build-essential
+      - libdb-dev
+      - libffi-dev
+      - libgdbm-dev
+      - libgdbm6
+      - libgmp-dev
+      - libncurses5-dev
+      - libreadline6-dev
+      - libssl-dev
+      - libyaml-dev
+      - patch
+      - rustc
+      - uuid-dev
+      - zlib1g-dev
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: clone asdf
+  become: yes
+  become_user: "{{ asdf_user }}"
+  git:
+    repo: https://github.com/asdf-vm/asdf.git
+    dest: "{{asdf_root_dir}}"
+    version: "{{asdf_version}}"
+
+- name: set bash env for asdf
+  blockinfile:
+    path: /home/{{asdf_user}}/.bashrc
+    owner: '{{asdf_user}}'
+    group: '{{asdf_user}}'
+    block: |
+      source {{asdf_root_dir}}/asdf.sh
+      source {{asdf_root_dir}}/completions/asdf.bash

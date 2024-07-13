@@ -1,0 +1,10 @@
+name: HA/powerflow2goe-surplus
+windows:
+  1:
+    name: Git
+    command: |
+      git la
+  2:
+    name: local
+    command: |
+      echo "TODO: Implement"
