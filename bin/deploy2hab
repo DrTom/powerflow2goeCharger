@@ -10,7 +10,7 @@ pip install -r ansible-requirements.txt
 
 
 ./bin/ansible-playbook \
-  -i ${PROJECT_DIR}/../ha-inventory/hosts.yml \
+  -i ~/Programming/SystemEngineering/my-servers_ansible/hosts_home.yml \
   -l hab \
   ${PROJECT_DIR}/deploy/deploy_play.yml \
   "$@"

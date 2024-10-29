@@ -13,6 +13,7 @@ Group={{powerflow2goecharger_user}}
 
 Restart=always
 RestartSec=5
+RuntimeMaxSec=1h
 
 ExecStart={{powerflow2goecharger_working_directory}}/powerflow2goecharger
 

@@ -44,20 +44,24 @@ def init_logger(opts):
 async def run_mqtt_loop(opts):
 
     async def process_powerflow_message(opts, client, message):
+        logger.debug(f"Received powerflow message: {message.payload}")
         global powerflow
-        payload = json.loads(message.payload.decode())
-        logger.debug(f"Received powerflow message: {payload}")
-        powerflow = payload.copy()
-        powerflow['timestamp'] = datetime.now().isoformat()
-        grid_power = payload['grid']['power']
-        pv_power = payload['inverter']['pv_production']
-        for charger_queue in opts.charger_queues:
-            try:
-                message = {"pGrid": -grid_power, "pPv": pv_power}
-                ids_topic = charger_queue + "/ids/set"
-                await client.publish(ids_topic, json.dumps(message))
-            except Exception as e:
-                logger.error("Error: ", e)
+        try:
+            payload = json.loads(message.payload.decode())
+            logger.debug(f"Received powerflow message: {payload}")
+            powerflow = payload.copy()
+            powerflow['timestamp'] = datetime.now().isoformat()
+            grid_power = payload['grid']['power']
+            pv_power = payload['inverter']['pv_production']
+            for charger_queue in opts.charger_queues:
+                try:
+                    message = {"pGrid": -grid_power, "pPv": pv_power}
+                    ids_topic = charger_queue + "/ids/set"
+                    await client.publish(ids_topic, json.dumps(message))
+                except Exception as e:
+                    logger.error("Publish to charger Error: ", e)
+        except Exception as e:
+          logger.error("Processing powerflow Error: ", e)
 
     async def process_charger_message(opts, client, message):
         logger.debug(
@@ -82,20 +86,24 @@ async def run_mqtt_loop(opts):
                 username=opts.mqtt_user,
                 password=opts.mqtt_password) as client:
 
-            await client.subscribe(opts.solaredge_powerflow_queue)
+            solar_power_topic = opts.solaredge_powerflow_queue + "/#"
+            logger.info(f"Subscribing to {solar_power_topic}")
+            await client.subscribe(solar_power_topic)
 
             for charger_queue in opts.charger_queues:
                 charger_states[charger_queue] = {}
-                await client.subscribe(charger_queue + "/#")
+                charger_topic = charger_queue + "/#"
+                logger.info(f"Subscribing to {charger_topic}")
+                await client.subscribe(charger_topic)
 
             async for message in client.messages:
-                if str(message.topic) == opts.solaredge_powerflow_queue:
+                if str(message.topic).startswith(opts.solaredge_powerflow_queue):
                     await process_powerflow_message(opts, client, message)
                 elif str(message.topic).startswith(tuple(opts.charger_queues)):
                     await process_charger_message(opts, client, message)
                 else:
                     logger.warning(
-                        f"Unexpected message on topic {message.topic}: {message.payload}")
+                            "Unexpected message on topic: ", str(message.topic))
 
         logger.warning("MQTT loop ended unexpectedly. Exiting ...")
 
@@ -172,6 +180,9 @@ def parse_args():
 opts = parse_args()
 print("opts: ", opts, opts.mqtt_host, opts.mqtt_user, opts.mqtt_password)
 logger = init_logger(opts)
+
+logger.info("Starting powerflow2goecharger")
+logger.info(f"Options: {opts}")
 
 loop = asyncio.get_event_loop()
 loop.create_task(run_mqtt_loop(opts))

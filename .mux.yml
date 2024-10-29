@@ -1,4 +1,4 @@
-name: HA/powerflow2goe-surplus
+name: HA/powerflow2goeCharger
 windows:
   1:
     name: Git

@@ -1,4 +1,4 @@
-powerflow2goecharger_charger_queues: '[]'
+powerflow2goecharger_charger_queues: '["go-eCharger/golf", "go-eCharger/enyaq"]'
 powerflow2goecharger_install: true
 powerflow2goecharger_log_level: 'INFO'
 powerflow2goecharger_mqtt_host: hab
